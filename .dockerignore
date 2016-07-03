@@ -1,0 +1,15 @@
+*.o
+*.so
+*.rlib
+*.dll
+*.exe
+target
+Cargo.lock
+_build
+*.iml
+.idea
+*~
+*.bk
+.DS_Store
+.RHistory
+*.html
