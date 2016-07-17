@@ -67,14 +67,14 @@ RUN    apt-get install -qq curl graphviz
 RUN    curl https://sh.rustup.rs -sSf | sh -s -- -y
 RUN    echo '\nexport PATH=$PATH:/root/.cargo/bin\n' >> /root/.bashrc
 
-RUN    /root/.cargo/bin/rustup install nightly
-
 RUN    /root/.cargo/bin/cargo install rustfmt
 RUN    /root/.cargo/bin/cargo install cargo-watch
 RUN    /root/.cargo/bin/cargo install cargo-outdated
 RUN    /root/.cargo/bin/cargo install cargo-graph
+RUN    /root/.cargo/bin/cargo install cargo-modules
 RUN    /root/.cargo/bin/cargo install cargo-count
 
+RUN    /root/.cargo/bin/rustup install nightly
 RUN    /root/.cargo/bin/rustup default nightly
 RUN    /root/.cargo/bin/cargo install clippy 
 RUN    /root/.cargo/bin/rustup default stable

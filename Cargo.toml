@@ -1,0 +1,37 @@
+[package]
+name = "kernel_density"
+description = "Implementation of kernel density estimation as a Rust library."
+version = "0.0.1"
+homepage = "https://github.com/daithiocrualaoich/kernel_density"
+repository = "https://github.com/daithiocrualaoich/kernel_density"
+authors = ["Daithi O Crualaoich <daithi.ocrualaoich@gmail.com>"]
+license = "Apache-2.0"
+keywords = ["statistics"]
+exclude = [
+  ".dockerignore",
+  ".gitignore",
+  ".travis.yml",
+  "Cargo.lock",
+  "Dockerfile",
+  "dat/*",
+  "doc/*",
+]
+
+[[bin]]
+name = "normal"
+
+[[bin]]
+name = "ks_critical_values"
+
+[[bin]]
+name = "ks_f64"
+
+[[bin]]
+name = "ks_i64"
+
+[dependencies]
+ordered-float = "0.2.1"
+rand = "0.3.12"
+
+[dev-dependencies]
+quickcheck = "0.2"
