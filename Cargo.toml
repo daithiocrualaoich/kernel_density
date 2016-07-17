@@ -1,7 +1,7 @@
 [package]
 name = "kernel_density"
 description = "Implementation of kernel density estimation as a Rust library."
-version = "0.0.1"
+version = "0.0.2"
 homepage = "https://github.com/daithiocrualaoich/kernel_density"
 repository = "https://github.com/daithiocrualaoich/kernel_density"
 authors = ["Daithi O Crualaoich <daithi.ocrualaoich@gmail.com>"]
@@ -9,9 +9,9 @@ license = "Apache-2.0"
 keywords = ["statistics"]
 exclude = [
   ".dockerignore",
+  ".editorconfig",
   ".gitignore",
   ".travis.yml",
-  "Cargo.lock",
   "Dockerfile",
   "dat/*",
   "doc/*",
