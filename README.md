@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/daithiocrualaoich/kernel_density.svg?branch=master)](https://travis-ci.org/daithiocrualaoich/kernel_density)
+[![Crates.io](https://img.shields.io/crates/v/kernel_density.svg)](https://crates.io/crates/kernel_density)
+[![License](https://img.shields.io/crates/l/kernel_density.svg)](https://github.com/daithiocrualaoich/kernel_density/blob/master/LICENSE)
 
 Implementation of Kernel Density Estimation as a Rust library.
 

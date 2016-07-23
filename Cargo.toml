@@ -21,6 +21,15 @@ exclude = [
 name = "normal"
 
 [[bin]]
+name = "epanechnikov_kde"
+
+[[bin]]
+name = "normal_kde"
+
+[[bin]]
+name = "uniform_kde"
+
+[[bin]]
 name = "ks_critical_values"
 
 [[bin]]
@@ -32,6 +41,7 @@ name = "ks_i64"
 [dependencies]
 ordered-float = "0.2.1"
 rand = "0.3.12"
+special-fun = "0.1.3"
 
 [dev-dependencies]
 quickcheck = "0.2"

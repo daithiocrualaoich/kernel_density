@@ -1,65 +1,14 @@
+mod common;
+
 extern crate kernel_density;
 extern crate quickcheck;
 extern crate rand;
 
-use quickcheck::{Arbitrary, Gen, QuickCheck, Testable, StdGen};
-use rand::Rng;
-use std::{cmp, usize};
-
-use kernel_density::kolmogorov_smirnov::test;
 use kernel_density::ecdf::Ecdf;
+use kernel_density::kolmogorov_smirnov::test;
+use common::{check, MoreThanSevenSamplesU64, EPSILON};
 
-const EPSILON: f64 = 1e-10;
-
-fn check<A: Testable>(f: A) {
-    // Need -1 to ensure space for creating non-overlapping samples.
-    let g = StdGen::new(rand::thread_rng(), usize::MAX - 1);
-    QuickCheck::new().gen(g).quickcheck(f);
-}
-
-/// Wrapper for generating sample data with QuickCheck.
-///
-/// Samples must be sequences of u64 values with more than 7 elements.
-#[derive(Debug, Clone)]
-struct Samples {
-    vec: Vec<u64>,
-}
-
-impl Samples {
-    fn min(&self) -> u64 {
-        let &min = self.vec.iter().min().unwrap();
-        min
-    }
-
-    fn max(&self) -> u64 {
-        let &max = self.vec.iter().max().unwrap();
-        max
-    }
-
-    fn shuffle(&mut self) {
-        let mut rng = rand::thread_rng();
-        rng.shuffle(&mut self.vec);
-    }
-}
-
-impl Arbitrary for Samples {
-    fn arbitrary<G: Gen>(g: &mut G) -> Samples {
-        // Limit size of generated sample set to 1024
-        let max = cmp::min(g.size(), 1024);
-
-        let size = g.gen_range(8, max);
-        let vec = (0..size).map(|_| u64::arbitrary(g)).collect();
-
-        Samples { vec: vec }
-    }
-
-    fn shrink(&self) -> Box<Iterator<Item = Samples>> {
-        let vec: Vec<u64> = self.vec.clone();
-        let shrunk: Box<Iterator<Item = Vec<u64>>> = vec.shrink();
-
-        Box::new(shrunk.filter(|v| v.len() > 7).map(|v| Samples { vec: v }))
-    }
-}
+use std::cmp;
 
 #[test]
 #[should_panic(expected="assertion failed: xs.len() > 7 && ys.len() > 7")]
@@ -123,7 +72,7 @@ fn calculate_statistic_alt<T: Ord + Clone>(xs: &[T], ys: &[T]) -> f64 {
 
 #[test]
 fn test_calculate_statistic() {
-    fn prop(xs: Samples, ys: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64, ys: MoreThanSevenSamplesU64) -> bool {
         let result = test(&xs.vec, &ys.vec, 0.95);
         let actual = result.statistic;
         let expected = calculate_statistic_alt(&xs.vec, &ys.vec);
@@ -131,24 +80,24 @@ fn test_calculate_statistic() {
         actual == expected
     }
 
-    check(prop as fn(Samples, Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64, MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_statistic_is_between_zero_and_one() {
-    fn prop(xs: Samples, ys: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64, ys: MoreThanSevenSamplesU64) -> bool {
         let result = test(&xs.vec, &ys.vec, 0.95);
         let actual = result.statistic;
 
         0.0 <= actual && actual <= 1.0
     }
 
-    check(prop as fn(Samples, Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64, MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_statistic_is_zero_for_identical_samples() {
-    fn prop(xs: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64) -> bool {
         let ys = xs.clone();
 
         let result = test(&xs.vec, &ys.vec, 0.95);
@@ -156,12 +105,12 @@ fn test_statistic_is_zero_for_identical_samples() {
         result.statistic == 0.0
     }
 
-    check(prop as fn(Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_statistic_is_zero_for_permuted_sample() {
-    fn prop(xs: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64) -> bool {
         let mut ys = xs.clone();
         ys.shuffle();
 
@@ -170,12 +119,12 @@ fn test_statistic_is_zero_for_permuted_sample() {
         result.statistic == 0.0
     }
 
-    check(prop as fn(Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_statistic_is_one_for_samples_with_no_overlap_in_support() {
-    fn prop(xs: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64) -> bool {
         let mut ys = xs.clone();
 
         // Shift ys so that ys.min > xs.max.
@@ -187,12 +136,12 @@ fn test_statistic_is_one_for_samples_with_no_overlap_in_support() {
         result.statistic == 1.0
     }
 
-    check(prop as fn(Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_statistic_is_one_half_for_sample_with_non_overlapping_in_support_replicate_added() {
-    fn prop(xs: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64) -> bool {
         let mut ys = xs.clone();
 
         // Shift ys so that ys.min > xs.max.
@@ -209,12 +158,12 @@ fn test_statistic_is_one_half_for_sample_with_non_overlapping_in_support_replica
         result.statistic == 0.5
     }
 
-    check(prop as fn(Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_statistic_is_one_div_length_for_sample_with_additional_low_value() {
-    fn prop(xs: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64) -> bool {
         // Add a extra sample of early weight to ys.
         let min = xs.min();
         let mut ys = xs.clone();
@@ -226,12 +175,12 @@ fn test_statistic_is_one_div_length_for_sample_with_additional_low_value() {
         result.statistic == expected
     }
 
-    check(prop as fn(Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_statistic_is_one_div_length_for_sample_with_additional_high_value() {
-    fn prop(xs: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64) -> bool {
         // Add a extra sample of late weight to ys.
         let max = xs.max();
         let mut ys = xs.clone();
@@ -243,12 +192,12 @@ fn test_statistic_is_one_div_length_for_sample_with_additional_high_value() {
         (result.statistic - expected).abs() < EPSILON
     }
 
-    check(prop as fn(Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_statistic_is_one_div_length_for_sample_with_additional_low_and_high_values() {
-    fn prop(xs: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64) -> bool {
         // Add a extra sample of late weight to ys.
         let min = xs.min();
         let max = xs.max();
@@ -264,12 +213,12 @@ fn test_statistic_is_one_div_length_for_sample_with_additional_low_and_high_valu
         (result.statistic - expected).abs() < EPSILON
     }
 
-    check(prop as fn(Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_statistic_is_n_div_length_for_sample_with_additional_n_low_values() {
-    fn prop(xs: Samples, n: u8) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64, n: u8) -> bool {
         // Add extra sample of early weight to ys.
         let min = xs.min();
         let mut ys = xs.clone();
@@ -283,12 +232,12 @@ fn test_statistic_is_n_div_length_for_sample_with_additional_n_low_values() {
         result.statistic == expected
     }
 
-    check(prop as fn(Samples, u8) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64, u8) -> bool);
 }
 
 #[test]
 fn test_statistic_is_n_div_length_for_sample_with_additional_n_high_values() {
-    fn prop(xs: Samples, n: u8) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64, n: u8) -> bool {
         // Add extra sample of early weight to ys.
         let max = xs.max();
         let mut ys = xs.clone();
@@ -302,12 +251,12 @@ fn test_statistic_is_n_div_length_for_sample_with_additional_n_high_values() {
         (result.statistic - expected).abs() < EPSILON
     }
 
-    check(prop as fn(Samples, u8) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64, u8) -> bool);
 }
 
 #[test]
 fn test_statistic_is_n_div_length_for_sample_with_additional_n_low_and_high_values() {
-    fn prop(xs: Samples, n: u8) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64, n: u8) -> bool {
         // Add extra sample of early weight to ys.
         let min = xs.min();
         let max = xs.max();
@@ -323,12 +272,12 @@ fn test_statistic_is_n_div_length_for_sample_with_additional_n_low_and_high_valu
         (result.statistic - expected).abs() < EPSILON
     }
 
-    check(prop as fn(Samples, u8) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64, u8) -> bool);
 }
 
 #[test]
 fn test_statistic_is_n_or_m_div_length_for_sample_with_additional_n_low_and_m_high_values() {
-    fn prop(xs: Samples, n: u8, m: u8) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64, n: u8, m: u8) -> bool {
         // Add extra sample of early weight to ys.
         let min = xs.min();
         let max = xs.max();
@@ -347,12 +296,12 @@ fn test_statistic_is_n_or_m_div_length_for_sample_with_additional_n_low_and_m_hi
         (result.statistic - expected).abs() < EPSILON
     }
 
-    check(prop as fn(Samples, u8, u8) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64, u8, u8) -> bool);
 }
 
 #[test]
 fn test_is_rejected_if_reject_probability_greater_than_confidence() {
-    fn prop(xs: Samples, ys: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64, ys: MoreThanSevenSamplesU64) -> bool {
         let result = test(&xs.vec, &ys.vec, 0.95);
 
         if result.is_rejected {
@@ -362,12 +311,12 @@ fn test_is_rejected_if_reject_probability_greater_than_confidence() {
         }
     }
 
-    check(prop as fn(Samples, Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64, MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_reject_probability_is_zero_for_identical_samples() {
-    fn prop(xs: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64) -> bool {
         let ys = xs.clone();
 
         let result = test(&xs.vec, &ys.vec, 0.95);
@@ -375,12 +324,12 @@ fn test_reject_probability_is_zero_for_identical_samples() {
         result.reject_probability == 0.0
     }
 
-    check(prop as fn(Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64) -> bool);
 }
 
 #[test]
 fn test_reject_probability_is_zero_for_permuted_sample() {
-    fn prop(xs: Samples) -> bool {
+    fn prop(xs: MoreThanSevenSamplesU64) -> bool {
         let mut ys = xs.clone();
         ys.shuffle();
 
@@ -389,5 +338,5 @@ fn test_reject_probability_is_zero_for_permuted_sample() {
         result.reject_probability == 0.0
     }
 
-    check(prop as fn(Samples) -> bool);
+    check(prop as fn(MoreThanSevenSamplesU64) -> bool);
 }
