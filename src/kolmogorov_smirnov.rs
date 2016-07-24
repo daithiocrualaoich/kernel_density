@@ -1,7 +1,5 @@
 //! Two Sample Kolmogorov-Smirnov Test
 
-use std::cmp::{min, Ord};
-
 /// Two sample test result.
 pub struct TestResult {
     pub is_rejected: bool,
@@ -25,8 +23,8 @@ pub struct TestResult {
 /// ```
 /// extern crate kernel_density;
 ///
-/// let xs = vec!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
-/// let ys = vec!(12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+/// let xs = vec!(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0);
+/// let ys = vec!(12.0, 11.0, 10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
 /// let confidence = 0.95;
 ///
 /// let result = kernel_density::kolmogorov_smirnov::test(&xs, &ys, confidence);
@@ -36,7 +34,7 @@ pub struct TestResult {
 ///       xs, ys, result.reject_probability);
 /// }
 /// ```
-pub fn test<T: Ord + Clone>(xs: &[T], ys: &[T], confidence: f64) -> TestResult {
+pub fn test(xs: &[f64], ys: &[f64], confidence: f64) -> TestResult {
     assert!(0.0 < confidence && confidence < 1.0);
 
     // Only supports samples of size > 7.
@@ -62,7 +60,7 @@ pub fn test<T: Ord + Clone>(xs: &[T], ys: &[T], confidence: f64) -> TestResult {
 ///
 /// The test statistic is the maximum vertical distance between the ECDFs of
 /// the two samples.
-fn calculate_statistic<T: Ord + Clone>(xs: &[T], ys: &[T]) -> f64 {
+fn calculate_statistic(xs: &[f64], ys: &[f64]) -> f64 {
     let n = xs.len();
     let m = ys.len();
 
@@ -72,12 +70,12 @@ fn calculate_statistic<T: Ord + Clone>(xs: &[T], ys: &[T]) -> f64 {
     let mut ys = ys.to_vec();
 
     // xs and ys must be sorted for the stepwise ECDF calculations to work.
-    xs.sort();
-    ys.sort();
+    xs.sort_by(|x_1, x_2| x_1.partial_cmp(x_2).unwrap());
+    ys.sort_by(|y_1, y_2| y_1.partial_cmp(y_2).unwrap());
 
     // The current value testing for ECDF difference. Sweeps up through elements
     // present in xs and ys.
-    let mut current: &T;
+    let mut current: f64;
 
     // i, j index the first values in xs and ys that are greater than current.
     let mut i = 0;
@@ -92,19 +90,19 @@ fn calculate_statistic<T: Ord + Clone>(xs: &[T], ys: &[T]) -> f64 {
 
     while i < n && j < m {
         // Advance i through duplicate samples in xs.
-        let x_i = &xs[i];
-        while i + 1 < n && *x_i == xs[i + 1] {
+        let x_i = xs[i];
+        while i + 1 < n && x_i == xs[i + 1] {
             i += 1;
         }
 
         // Advance j through duplicate samples in ys.
-        let y_j = &ys[j];
-        while j + 1 < m && *y_j == ys[j + 1] {
+        let y_j = ys[j];
+        while j + 1 < m && y_j == ys[j + 1] {
             j += 1;
         }
 
         // Step to the next sample value in the ECDF sweep from low to high.
-        current = min(x_i, y_j);
+        current = x_i.min(y_j);
 
         // Update invariant conditions for i, j, ecdf_xs, and ecdf_ys.
         if current == x_i {

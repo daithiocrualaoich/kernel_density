@@ -3,43 +3,23 @@ extern crate quickcheck;
 
 use rand::Rng;
 use quickcheck::{Arbitrary, Gen, QuickCheck, Testable, StdGen};
-use std::{cmp, usize};
+use std::{cmp, f64};
 
 #[allow(dead_code)]
 pub const EPSILON: f64 = 1e-10;
 
 pub fn check<A: Testable>(f: A) {
-    // Need -1 to ensure space for creating non-overlapping samples
-    // in kolmogorov_smirnov tests.
-    let g = StdGen::new(rand::thread_rng(), usize::MAX - 1);
+    // Adjust the size of the generator to be larger than the default size of
+    // 100. The problem is this restricts generated f64 values to be in the
+    // range -100 to 100 where we would like to test a wider space.
+
+    // But increasing the size too high means the generated f64 values are
+    // large integers instead of decimals because the closest f64 to most of
+    // the available range are floats with large positive exponents, i.e
+    // integers. This also causes some tests to break by underflowing.
+
+    let g = StdGen::new(rand::thread_rng(), 1_000_000_000_000);
     QuickCheck::new().gen(g).quickcheck(f);
-}
-
-/// Wrapper for generating sample data with QuickCheck.
-///
-/// Samples must be non-empty sequences of u64 values.
-#[derive(Debug, Clone)]
-pub struct SamplesU64 {
-    pub vec: Vec<u64>,
-}
-
-impl Arbitrary for SamplesU64 {
-    fn arbitrary<G: Gen>(g: &mut G) -> SamplesU64 {
-        // Limit size of generated sample set to 1024
-        let max = cmp::min(g.size(), 1024);
-
-        let size = g.gen_range(1, max);
-        let vec = (0..size).map(|_| u64::arbitrary(g)).collect();
-
-        SamplesU64 { vec: vec }
-    }
-
-    fn shrink(&self) -> Box<Iterator<Item = SamplesU64>> {
-        let vec: Vec<u64> = self.vec.clone();
-        let shrunk: Box<Iterator<Item = Vec<u64>>> = vec.shrink();
-
-        Box::new(shrunk.filter(|v| v.len() > 0).map(|v| SamplesU64 { vec: v }))
-    }
 }
 
 /// Wrapper for generating sample data with QuickCheck.
@@ -48,6 +28,33 @@ impl Arbitrary for SamplesU64 {
 #[derive(Debug, Clone)]
 pub struct SamplesF64 {
     pub vec: Vec<f64>,
+}
+
+#[allow(dead_code)]
+impl SamplesF64 {
+    pub fn min(&self) -> f64 {
+        let mut min = f64::MAX;
+
+        for &x in self.vec.iter() {
+            if x < min {
+                min = x
+            }
+        }
+
+        min
+    }
+
+    pub fn max(&self) -> f64 {
+        let mut max = f64::MIN;
+
+        for &x in self.vec.iter() {
+            if x > max {
+                max = x
+            }
+        }
+
+        max
+    }
 }
 
 impl Arbitrary for SamplesF64 {
@@ -71,21 +78,35 @@ impl Arbitrary for SamplesF64 {
 
 /// Wrapper for generating sample data with QuickCheck.
 ///
-/// Samples must be sequences of u64 values with more than 7 elements.
+/// Samples must be sequences of f64 values with more than 7 elements.
 #[derive(Debug, Clone)]
-pub struct MoreThanSevenSamplesU64 {
-    pub vec: Vec<u64>,
+pub struct MoreThanSevenSamplesF64 {
+    pub vec: Vec<f64>,
 }
 
 #[allow(dead_code)]
-impl MoreThanSevenSamplesU64 {
-    pub fn min(&self) -> u64 {
-        let &min = self.vec.iter().min().unwrap();
+impl MoreThanSevenSamplesF64 {
+    pub fn min(&self) -> f64 {
+        let mut min = f64::MAX;
+
+        for &x in self.vec.iter() {
+            if x < min {
+                min = x
+            }
+        }
+
         min
     }
 
-    pub fn max(&self) -> u64 {
-        let &max = self.vec.iter().max().unwrap();
+    pub fn max(&self) -> f64 {
+        let mut max = f64::MIN;
+
+        for &x in self.vec.iter() {
+            if x > max {
+                max = x
+            }
+        }
+
         max
     }
 
@@ -95,22 +116,22 @@ impl MoreThanSevenSamplesU64 {
     }
 }
 
-impl Arbitrary for MoreThanSevenSamplesU64 {
-    fn arbitrary<G: Gen>(g: &mut G) -> MoreThanSevenSamplesU64 {
+impl Arbitrary for MoreThanSevenSamplesF64 {
+    fn arbitrary<G: Gen>(g: &mut G) -> MoreThanSevenSamplesF64 {
         // Limit size of generated sample set to 1024
         let max = cmp::min(g.size(), 1024);
 
         let size = g.gen_range(8, max);
-        let vec = (0..size).map(|_| u64::arbitrary(g)).collect();
+        let vec = (0..size).map(|_| f64::arbitrary(g)).collect();
 
-        MoreThanSevenSamplesU64 { vec: vec }
+        MoreThanSevenSamplesF64 { vec: vec }
     }
 
-    fn shrink(&self) -> Box<Iterator<Item = MoreThanSevenSamplesU64>> {
-        let vec: Vec<u64> = self.vec.clone();
-        let shrunk: Box<Iterator<Item = Vec<u64>>> = vec.shrink();
+    fn shrink(&self) -> Box<Iterator<Item = MoreThanSevenSamplesF64>> {
+        let vec: Vec<f64> = self.vec.clone();
+        let shrunk: Box<Iterator<Item = Vec<f64>>> = vec.shrink();
 
-        Box::new(shrunk.filter(|v| v.len() > 7).map(|v| MoreThanSevenSamplesU64 { vec: v }))
+        Box::new(shrunk.filter(|v| v.len() > 7).map(|v| MoreThanSevenSamplesF64 { vec: v }))
     }
 }
 

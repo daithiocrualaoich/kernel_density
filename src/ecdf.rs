@@ -1,10 +1,10 @@
 //! Empirical cumulative distribution function.
 
-pub struct Ecdf<T: Ord> {
-    samples: Vec<T>,
+pub struct Ecdf {
+    samples: Vec<f64>,
 }
 
-impl<T: Ord + Clone> Ecdf<T> {
+impl Ecdf {
     /// Construct a new representation of a cumulative distribution function
     /// for a given sample.
     ///
@@ -22,16 +22,16 @@ impl<T: Ord + Clone> Ecdf<T> {
     /// ```
     /// extern crate kernel_density;
     ///
-    /// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
     /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
     /// ```
-    pub fn new(samples: &[T]) -> Ecdf<T> {
+    pub fn new(samples: &[f64]) -> Ecdf {
         let length = samples.len();
         assert!(length > 0);
 
         // Sort a copied sample for binary searching.
         let mut sorted = samples.to_vec();
-        sorted.sort();
+        sorted.sort_by(|x_1, x_2| x_1.partial_cmp(x_2).unwrap());
 
         Ecdf { samples: sorted }
     }
@@ -44,17 +44,19 @@ impl<T: Ord + Clone> Ecdf<T> {
     /// ```
     /// extern crate kernel_density;
     ///
-    /// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
     /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
-    /// assert_eq!(ecdf.value(4), 0.5);
+    /// assert_eq!(ecdf.value(4.0), 0.5);
     /// ```
-    pub fn value(&self, t: T) -> f64 {
+    pub fn value(&self, x: f64) -> f64 {
         let length = self.samples.len();
-        let num_samples_leq_t = match self.samples.binary_search(&t) {
+        let binary_search_x = self.samples.binary_search_by(|x_1| x_1.partial_cmp(&x).unwrap());
+
+        let num_samples_leq_x = match binary_search_x {
             Ok(mut index) => {
                 // At least one sample is a t and we have the index of it. Need
-                // to walk down the sorted samples until at last that == t.
-                while index + 1 < length && self.samples[index + 1] == t {
+                // to walk down the sorted samples until at last that == x.
+                while index + 1 < length && self.samples[index + 1] == x {
                     index += 1;
                 }
 
@@ -63,7 +65,7 @@ impl<T: Ord + Clone> Ecdf<T> {
             }
             Err(index) => {
                 // No sample is a t but if we had to put one in it would go at
-                // index. This means all indices to the left have samples < t
+                // index. This means all indices to the left have samples < x
                 // and should be counted in the cdf proportion. We must take
                 // one from index to get the last included sample but then we
                 // just have to add one again to account for 0-based indexing.
@@ -71,7 +73,7 @@ impl<T: Ord + Clone> Ecdf<T> {
             }
         };
 
-        num_samples_leq_t as f64 / length as f64
+        num_samples_leq_x as f64 / length as f64
     }
 
     /// Calculate a p-proportion for the sample using the Nearest Rank method.
@@ -95,17 +97,17 @@ impl<T: Ord + Clone> Ecdf<T> {
     /// ```
     /// extern crate kernel_density;
     ///
-    /// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
     /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
-    /// assert_eq!(ecdf.p(0.5), 4);
-    /// assert_eq!(ecdf.p(0.05), 0);
+    /// assert_eq!(ecdf.p(0.5), 4.0);
+    /// assert_eq!(ecdf.p(0.05), 0.0);
     /// ```
-    pub fn p(&self, proportion: f64) -> T {
+    pub fn p(&self, proportion: f64) -> f64 {
         assert!(0.0 < proportion && proportion <= 1.0);
 
         let length = self.samples.len();
         let rank = (proportion * length as f64).ceil() as usize;
-        self.samples[rank - 1].clone()
+        self.samples[rank - 1]
     }
 
     /// Calculate a percentile for the sample using the Nearest Rank method.
@@ -129,12 +131,12 @@ impl<T: Ord + Clone> Ecdf<T> {
     /// ```
     /// extern crate kernel_density;
     ///
-    /// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
     /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
-    /// assert_eq!(ecdf.percentile(50.0), 4);
-    /// assert_eq!(ecdf.percentile(5.0), 0);
+    /// assert_eq!(ecdf.percentile(50.0), 4.0);
+    /// assert_eq!(ecdf.percentile(5.0), 0.0);
     /// ```
-    pub fn percentile(&self, percentile: f64) -> T {
+    pub fn percentile(&self, percentile: f64) -> f64 {
         assert!(0.0 < percentile && percentile <= 100.0);
         self.p(percentile / 100.0)
     }
@@ -151,14 +153,14 @@ impl<T: Ord + Clone> Ecdf<T> {
     /// ```
     /// extern crate kernel_density;
     ///
-    /// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
     /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
-    /// assert_eq!(ecdf.rank(5), 4);
+    /// assert_eq!(ecdf.rank(5), 4.0);
     /// ```
-    pub fn rank(&self, rank: usize) -> T {
+    pub fn rank(&self, rank: usize) -> f64 {
         let length = self.samples.len();
         assert!(0 < rank && rank <= length);
-        self.samples[rank - 1].clone()
+        self.samples[rank - 1]
     }
 
     /// Return the minimal element of the samples.
@@ -168,12 +170,12 @@ impl<T: Ord + Clone> Ecdf<T> {
     /// ```
     /// extern crate kernel_density;
     ///
-    /// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
     /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
-    /// assert_eq!(ecdf.min(), 0);
+    /// assert_eq!(ecdf.min(), 0.0);
     /// ```
-    pub fn min(&self) -> T {
-        self.samples[0].clone()
+    pub fn min(&self) -> f64 {
+        self.samples[0]
     }
 
     /// Return the maximal element of the samples.
@@ -183,13 +185,13 @@ impl<T: Ord + Clone> Ecdf<T> {
     /// ```
     /// extern crate kernel_density;
     ///
-    /// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
     /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
-    /// assert_eq!(ecdf.max(), 9);
+    /// assert_eq!(ecdf.max(), 9.0);
     /// ```
-    pub fn max(&self) -> T {
+    pub fn max(&self) -> f64 {
         let length = self.samples.len();
-        self.samples[length - 1].clone()
+        self.samples[length - 1]
     }
 }
 
@@ -197,7 +199,7 @@ impl<T: Ord + Clone> Ecdf<T> {
 /// function for a given sample.
 ///
 /// Computational running time of this function is O(n) but does not amortize
-/// across multiple calls like `Ecdf<T>::value`. This function should only be
+/// across multiple calls like `Ecdf::value`. This function should only be
 /// used in the case that a small number of ECDF values are required for the
 /// sample. Otherwise, `Ecdf::new` should be used to create a structure that
 /// takes the upfront O(n log n) sort cost but calculates values in O(log n).
@@ -211,24 +213,24 @@ impl<T: Ord + Clone> Ecdf<T> {
 /// ```
 /// extern crate kernel_density;
 ///
-/// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
-/// let value = kernel_density::ecdf::ecdf(&samples, 4);
+/// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
+/// let value = kernel_density::ecdf::ecdf(&samples, 4.0);
 /// assert_eq!(value, 0.5);
 /// ```
-pub fn ecdf<T: Ord>(samples: &[T], t: T) -> f64 {
-    let mut num_samples_leq_t = 0;
+pub fn ecdf(samples: &[f64], x: f64) -> f64 {
+    let mut num_samples_leq_x = 0;
     let mut length = 0;
 
     for sample in samples.iter() {
         length += 1;
-        if *sample <= t {
-            num_samples_leq_t += 1;
+        if *sample <= x {
+            num_samples_leq_x += 1;
         }
     }
 
     assert!(length > 0);
 
-    num_samples_leq_t as f64 / length as f64
+    num_samples_leq_x as f64 / length as f64
 }
 
 /// Calculate a one-time proportion for a given sample using the Nearest Rank
@@ -244,7 +246,7 @@ pub fn ecdf<T: Ord>(samples: &[T], t: T) -> f64 {
 /// in (0, 50).
 ///
 /// Computational running time of this function is O(n) but does not amortize
-/// across multiple calls like `Ecdf<T>::percentile`. This function should only
+/// across multiple calls like `Ecdf::percentile`. This function should only
 /// becused in the case that a small number of percentiles are required for the
 /// sample. Otherwise, `Ecdf::new` should be used to create a structure that
 /// takes the upfront O(n log n) sort cost but calculates percentiles in O(1).
@@ -261,14 +263,14 @@ pub fn ecdf<T: Ord>(samples: &[T], t: T) -> f64 {
 /// ```
 /// extern crate kernel_density;
 ///
-/// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+/// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
 /// let percentile = kernel_density::ecdf::p(&samples, 0.5);
-/// assert_eq!(percentile, 4);
+/// assert_eq!(percentile, 4.0);
 ///
 /// let percentile = kernel_density::ecdf::p(&samples, 0.05);
-/// assert_eq!(percentile, 0);
+/// assert_eq!(percentile, 0.0);
 /// ```
-pub fn p<T: Ord + Clone>(samples: &[T], proportion: f64) -> T {
+pub fn p(samples: &[f64], proportion: f64) -> f64 {
     assert!(0.0 < proportion && proportion <= 1.0);
 
     let length = samples.len();
@@ -292,7 +294,7 @@ pub fn p<T: Ord + Clone>(samples: &[T], proportion: f64) -> T {
 /// in (0, 50).
 ///
 /// Computational running time of this function is O(n) but does not amortize
-/// across multiple calls like `Ecdf<T>::percentile`. This function should only
+/// across multiple calls like `Ecdf::percentile`. This function should only
 /// becused in the case that a small number of percentiles are required for the
 /// sample. Otherwise, `Ecdf::new` should be used to create a structure that
 /// takes the upfront O(n log n) sort cost but calculates percentiles in O(1).
@@ -309,14 +311,14 @@ pub fn p<T: Ord + Clone>(samples: &[T], proportion: f64) -> T {
 /// ```
 /// extern crate kernel_density;
 ///
-/// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+/// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
 /// let percentile = kernel_density::ecdf::percentile(&samples, 50.0);
-/// assert_eq!(percentile, 4);
+/// assert_eq!(percentile, 4.0);
 ///
 /// let percentile = kernel_density::ecdf::percentile(&samples, 5.0);
-/// assert_eq!(percentile, 0);
+/// assert_eq!(percentile, 0.0);
 /// ```
-pub fn percentile<T: Ord + Clone>(samples: &[T], percentile: f64) -> T {
+pub fn percentile(samples: &[f64], percentile: f64) -> f64 {
     assert!(0.0 < percentile && percentile <= 100.0);
     p(samples, percentile / 100.0)
 }
@@ -339,18 +341,18 @@ pub fn percentile<T: Ord + Clone>(samples: &[T], percentile: f64) -> T {
 /// ```
 /// extern crate kernel_density;
 ///
-/// let samples = vec!(9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+/// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
 /// let rank = kernel_density::ecdf::rank(&samples, 5);
-/// assert_eq!(rank, 4);
+/// assert_eq!(rank, 4.0);
 /// ```
-pub fn rank<T: Ord + Clone>(samples: &[T], rank: usize) -> T {
+pub fn rank(samples: &[f64], rank: usize) -> f64 {
     let length = samples.len();
     assert!(length > 0);
     assert!(0 < rank && rank <= length);
 
     // Quick Select the element at rank.
 
-    let mut samples: Vec<T> = samples.to_vec();
+    let mut samples: Vec<f64> = samples.to_vec();
     let mut low = 0;
     let mut high = length;
 
