@@ -1,7 +1,6 @@
 extern crate kernel_density;
 
-use kernel_density::Density;
-use kernel_density::kde::uniform::UniformKernelDensityEstimation;
+use kernel_density::kde;
 
 use std::env;
 use std::io::{BufReader, BufRead};
@@ -44,7 +43,7 @@ fn main() {
 
     let xs: Vec<f64> = lines.map(parse_float).collect();
 
-    let kde = UniformKernelDensityEstimation::new(&xs, bandwidth);
+    let kde = kde::uniform(&xs, bandwidth);
 
     println!("x\tkde\tcdf");
     println!("{}\t{}\t{}", min, kde.density(min), kde.cdf(min));
