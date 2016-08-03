@@ -1,7 +1,10 @@
 //! Uniform kernel density estimation functions.
 
+use Density;
+
 pub struct UniformKernelDensityEstimation {
     samples: Vec<f64>,
+    bandwidth: f64,
 }
 
 impl UniformKernelDensityEstimation {
@@ -12,7 +15,8 @@ impl UniformKernelDensityEstimation {
     ///
     /// # Panics
     ///
-    /// The sample set must be non-empty.
+    /// Bandwidth must be greater than zero and the sample set must be
+    /// non-empty.
     ///
     /// # Examples
     ///
@@ -20,67 +24,79 @@ impl UniformKernelDensityEstimation {
     /// extern crate kernel_density;
     ///
     /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let kde = kernel_density::kde::uniform::UniformKernelDensityEstimation::new(&samples);
+    /// let bandwidth = 0.1;
+    /// let kde = kernel_density::kde::uniform::UniformKernelDensityEstimation::new(
+    ///     &samples, bandwidth
+    /// );
     /// ```
-    pub fn new(samples: &[f64]) -> UniformKernelDensityEstimation {
+    pub fn new(samples: &[f64], bandwidth: f64) -> UniformKernelDensityEstimation {
+        assert!(bandwidth > 0.0);
+
         let length = samples.len();
         assert!(length > 0);
 
-        UniformKernelDensityEstimation { samples: samples.to_vec() }
+        UniformKernelDensityEstimation {
+            samples: samples.to_vec(),
+            bandwidth: bandwidth,
+        }
     }
+}
 
+impl Density for UniformKernelDensityEstimation {
     /// Calculate a value of the kernel density function for a given value.
-    ///
-    /// # Panics
-    ///
-    /// The bandwidth should be > 0.
     ///
     /// # Examples
     ///
     /// ```
     /// extern crate kernel_density;
+    /// use self::kernel_density::Density;
+    /// use self::kernel_density::kde::uniform::UniformKernelDensityEstimation;
     ///
-    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let kde = kernel_density::kde::uniform::UniformKernelDensityEstimation::new(&samples);
-    /// assert_eq!(kde.value(4.0, 0.1), 0.5);
+    /// fn main() {
+    ///     let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
+    ///     let bandwidth = 0.1;
+    ///     let kde = UniformKernelDensityEstimation::new(&samples, bandwidth);
+    ///
+    ///     assert_eq!(kde.density(4.0), 0.5);
+    /// }
     /// ```
-    pub fn value(&self, x: f64, bandwidth: f64) -> f64 {
-        assert!(bandwidth > 0.0);
+    fn density(&self, x: f64) -> f64 {
         let length = self.samples.len();
 
         let mut sum = 0.0;
         for sample in &self.samples {
-            if (x - sample).abs() / bandwidth <= 1.0 {
+            if (x - sample).abs() / self.bandwidth <= 1.0 {
                 sum += 0.5
             }
         }
 
-        sum / (length as f64 * bandwidth)
+        sum / (length as f64 * self.bandwidth)
     }
 
     /// Calculate a value of the cumulative density function for this kernel
     /// density estimation.
     ///
-    /// # Panics
-    ///
-    /// The bandwidth should be > 0.
-    ///
     /// # Examples
     ///
     /// ```
     /// extern crate kernel_density;
+    /// use self::kernel_density::Density;
+    /// use self::kernel_density::kde::uniform::UniformKernelDensityEstimation;
     ///
-    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let kde = kernel_density::kde::uniform::UniformKernelDensityEstimation::new(&samples);
-    /// assert_eq!(kde.cdf(0.1, 0.1), 0.1);
+    /// fn main() {
+    ///     let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
+    ///     let bandwidth = 0.1;
+    ///     let kde = UniformKernelDensityEstimation::new(&samples, bandwidth);
+    ///
+    ///     assert_eq!(kde.cdf(0.1), 0.1);
+    /// }
     /// ```
-    pub fn cdf(&self, x: f64, bandwidth: f64) -> f64 {
-        assert!(bandwidth > 0.0);
+    fn cdf(&self, x: f64) -> f64 {
         let length = self.samples.len();
 
         let mut sum = 0.0;
         for sample in &self.samples {
-            let rescaled: f64 = (x - sample) / bandwidth;
+            let rescaled: f64 = (x - sample) / self.bandwidth;
             if rescaled >= 1.0 {
                 sum += 1.0;
             } else if rescaled > -1.0 {

@@ -1,5 +1,6 @@
 extern crate kernel_density;
 
+use kernel_density::Density;
 use kernel_density::kde::epanechnikov::EpanechnikovKernelDensityEstimation;
 
 use std::env;
@@ -43,30 +44,21 @@ fn main() {
 
     let xs: Vec<f64> = lines.map(parse_float).collect();
 
-    let kde = EpanechnikovKernelDensityEstimation::new(&xs);
+    let kde = EpanechnikovKernelDensityEstimation::new(&xs, bandwidth);
 
     println!("x\tkde\tcdf");
-    println!("{}\t{}\t{}",
-             min,
-             kde.value(min, bandwidth),
-             kde.cdf(min, bandwidth));
+    println!("{}\t{}\t{}", min, kde.density(min), kde.cdf(min));
 
     // Iterate using fixed point arithmetic over a 0.01 grid resolution.
     let mut x_fixed: i64 = (min * 100.0).floor() as i64 + 1;
     let mut x_f64: f64 = x_fixed as f64 / 100.0;
 
     while x_f64 < max {
-        println!("{}\t{}\t{}",
-                 x_f64,
-                 kde.value(x_f64, bandwidth),
-                 kde.cdf(x_f64, bandwidth));
+        println!("{}\t{}\t{}", x_f64, kde.density(x_f64), kde.cdf(x_f64));
 
         x_fixed += 1;
         x_f64 = x_fixed as f64 / 100.0;
     }
 
-    println!("{}\t{}\t{}",
-             max,
-             kde.value(max, bandwidth),
-             kde.cdf(max, bandwidth));
+    println!("{}\t{}\t{}", max, kde.density(max), kde.cdf(max));
 }

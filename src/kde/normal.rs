@@ -2,11 +2,13 @@
 
 extern crate special_fun;
 
+use Density;
 use self::special_fun::FloatSpecial;
 use std::f64::consts;
 
 pub struct NormalKernelDensityEstimation {
     samples: Vec<f64>,
+    bandwidth: f64,
 }
 
 impl NormalKernelDensityEstimation {
@@ -17,7 +19,8 @@ impl NormalKernelDensityEstimation {
     ///
     /// # Panics
     ///
-    /// The sample set must be non-empty.
+    /// Bandwidth must be greater than zero and the sample set must be
+    /// non-empty.
     ///
     /// # Examples
     ///
@@ -25,67 +28,79 @@ impl NormalKernelDensityEstimation {
     /// extern crate kernel_density;
     ///
     /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let kde = kernel_density::kde::normal::NormalKernelDensityEstimation::new(&samples);
+    /// let bandwidth = 0.1;
+    /// let kde = kernel_density::kde::normal::NormalKernelDensityEstimation::new(
+    ///     &samples, bandwidth
+    /// );
     /// ```
-    pub fn new(samples: &[f64]) -> NormalKernelDensityEstimation {
+    pub fn new(samples: &[f64], bandwidth: f64) -> NormalKernelDensityEstimation {
+        assert!(bandwidth > 0.0);
+
         let length = samples.len();
         assert!(length > 0);
 
-        NormalKernelDensityEstimation { samples: samples.to_vec() }
+        NormalKernelDensityEstimation {
+            samples: samples.to_vec(),
+            bandwidth: bandwidth,
+        }
     }
+}
 
+impl Density for NormalKernelDensityEstimation {
     /// Calculate a value of the kernel density function for a given value.
-    ///
-    /// # Panics
-    ///
-    /// The bandwidth should be > 0.
     ///
     /// # Examples
     ///
     /// ```
     /// extern crate kernel_density;
+    /// use self::kernel_density::Density;
+    /// use self::kernel_density::kde::normal::NormalKernelDensityEstimation;
     ///
-    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let kde = kernel_density::kde::normal::NormalKernelDensityEstimation::new(&samples);
-    /// assert_eq!(kde.value(4.0, 0.1), 0.3989422804014327);
+    /// fn main() {
+    ///     let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
+    ///     let bandwidth = 0.1;
+    ///     let kde = NormalKernelDensityEstimation::new(&samples, bandwidth);
+    ///
+    ///     assert_eq!(kde.density(4.0), 0.3989422804014327);
+    /// }
     /// ```
-    pub fn value(&self, x: f64, bandwidth: f64) -> f64 {
-        assert!(bandwidth > 0.0);
+    fn density(&self, x: f64) -> f64 {
         let length = self.samples.len();
 
         let mut sum = 0.0;
         for sample in &self.samples {
-            let rescaled: f64 = (x - sample) / bandwidth;
+            let rescaled: f64 = (x - sample) / self.bandwidth;
             sum += (-0.5 * rescaled.powi(2)).exp()
         }
 
         let sqrt_2pi = (2.0 * consts::PI).sqrt();
-        sum / (sqrt_2pi * length as f64 * bandwidth)
+        sum / (sqrt_2pi * length as f64 * self.bandwidth)
     }
 
     /// Calculate a value of the cumulative density function for this kernel
     /// density estimation.
     ///
-    /// # Panics
-    ///
-    /// The bandwidth should be > 0.
-    ///
     /// # Examples
     ///
     /// ```
     /// extern crate kernel_density;
+    /// use self::kernel_density::Density;
+    /// use self::kernel_density::kde::normal::NormalKernelDensityEstimation;
     ///
-    /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let kde = kernel_density::kde::normal::NormalKernelDensityEstimation::new(&samples);
-    /// assert_eq!(kde.cdf(0.1, 0.1), 0.08413447460685429);
+    /// fn main() {
+    ///     let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
+    ///     let bandwidth = 0.1;
+    ///     let kde = NormalKernelDensityEstimation::new(&samples, bandwidth);
+    ///
+    ///     assert_eq!(kde.cdf(0.1), 0.08413447460685429);
+    /// }
     /// ```
-    pub fn cdf(&self, x: f64, bandwidth: f64) -> f64 {
-        assert!(bandwidth > 0.0);
+    fn cdf(&self, x: f64) -> f64 {
         let length = self.samples.len();
 
         let mut sum = 0.0;
         for sample in &self.samples {
-            let rescaled: f64 = (x - sample) / bandwidth;
+            let rescaled: f64 = (x - sample) / self.bandwidth;
             sum += rescaled.norm();
         }
 
