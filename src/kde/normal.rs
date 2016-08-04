@@ -4,7 +4,7 @@ extern crate special_fun;
 
 use density::Density;
 use self::special_fun::FloatSpecial;
-use std::f64::consts;
+use std::f64::consts::PI;
 
 pub struct NormalKernelDensityEstimation {
     pub samples: Vec<f64>,
@@ -34,7 +34,7 @@ impl Density for NormalKernelDensityEstimation {
             sum += (-0.5 * rescaled.powi(2)).exp()
         }
 
-        let sqrt_2pi = (2.0 * consts::PI).sqrt();
+        let sqrt_2pi = (2.0 * PI).sqrt();
         sum / (sqrt_2pi * length as f64 * self.bandwidth)
     }
 
