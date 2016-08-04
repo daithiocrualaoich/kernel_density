@@ -1,4 +1,4 @@
-//! Two Sample Kolmogorov-Smirnov Test
+//! Two sample Kolmogorov-Smirnov test.
 
 /// Two sample test result.
 pub struct TestResult {

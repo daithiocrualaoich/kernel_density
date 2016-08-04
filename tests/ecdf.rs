@@ -4,7 +4,7 @@ extern crate kernel_density;
 extern crate quickcheck;
 extern crate rand;
 
-use kernel_density::ecdf::{Ecdf, ecdf, percentile, p, rank};
+use kernel_density::density::{Ecdf, ecdf, percentile, p, rank};
 use common::{check, SamplesF64, Percentile, Proportion};
 
 use quickcheck::TestResult;

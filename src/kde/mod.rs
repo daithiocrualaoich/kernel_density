@@ -1,8 +1,10 @@
+//! Kernel Density Estimation functions.
+
 mod epanechnikov;
 mod normal;
 mod uniform;
 
-use Density;
+use density::Density;
 
 /// Construct a kernel density estimation for a given sample. Uses the
 /// Epanenchnikov kernel.

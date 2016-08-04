@@ -4,7 +4,7 @@ extern crate kernel_density;
 extern crate quickcheck;
 extern crate rand;
 
-use kernel_density::ecdf::Ecdf;
+use kernel_density::density::Ecdf;
 use kernel_density::kolmogorov_smirnov::test;
 use common::{check, MoreThanSevenSamplesF64, EPSILON};
 

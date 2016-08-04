@@ -1,6 +1,6 @@
 //! Uniform kernel density estimation functions.
 
-use Density;
+use density::Density;
 
 pub struct UniformKernelDensityEstimation {
     pub samples: Vec<f64>,

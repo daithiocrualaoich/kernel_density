@@ -1,6 +1,6 @@
 //! Epanechnikov kernel density estimation functions.
 
-use Density;
+use density::Density;
 
 pub struct EpanechnikovKernelDensityEstimation {
     pub samples: Vec<f64>,

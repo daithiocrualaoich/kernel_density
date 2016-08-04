@@ -23,7 +23,7 @@ impl Ecdf {
     /// extern crate kernel_density;
     ///
     /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
+    /// let ecdf = kernel_density::density::Ecdf::new(&samples);
     /// ```
     pub fn new(samples: &[f64]) -> Ecdf {
         let length = samples.len();
@@ -45,7 +45,7 @@ impl Ecdf {
     /// extern crate kernel_density;
     ///
     /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
+    /// let ecdf = kernel_density::density::Ecdf::new(&samples);
     /// assert_eq!(ecdf.value(4.0), 0.5);
     /// ```
     pub fn value(&self, x: f64) -> f64 {
@@ -98,7 +98,7 @@ impl Ecdf {
     /// extern crate kernel_density;
     ///
     /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
+    /// let ecdf = kernel_density::density::Ecdf::new(&samples);
     /// assert_eq!(ecdf.p(0.5), 4.0);
     /// assert_eq!(ecdf.p(0.05), 0.0);
     /// ```
@@ -132,7 +132,7 @@ impl Ecdf {
     /// extern crate kernel_density;
     ///
     /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
+    /// let ecdf = kernel_density::density::Ecdf::new(&samples);
     /// assert_eq!(ecdf.percentile(50.0), 4.0);
     /// assert_eq!(ecdf.percentile(5.0), 0.0);
     /// ```
@@ -154,7 +154,7 @@ impl Ecdf {
     /// extern crate kernel_density;
     ///
     /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
+    /// let ecdf = kernel_density::density::Ecdf::new(&samples);
     /// assert_eq!(ecdf.rank(5), 4.0);
     /// ```
     pub fn rank(&self, rank: usize) -> f64 {
@@ -171,7 +171,7 @@ impl Ecdf {
     /// extern crate kernel_density;
     ///
     /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
+    /// let ecdf = kernel_density::density::Ecdf::new(&samples);
     /// assert_eq!(ecdf.min(), 0.0);
     /// ```
     pub fn min(&self) -> f64 {
@@ -186,7 +186,7 @@ impl Ecdf {
     /// extern crate kernel_density;
     ///
     /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-    /// let ecdf = kernel_density::ecdf::Ecdf::new(&samples);
+    /// let ecdf = kernel_density::density::Ecdf::new(&samples);
     /// assert_eq!(ecdf.max(), 9.0);
     /// ```
     pub fn max(&self) -> f64 {
@@ -214,7 +214,7 @@ impl Ecdf {
 /// extern crate kernel_density;
 ///
 /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-/// let value = kernel_density::ecdf::ecdf(&samples, 4.0);
+/// let value = kernel_density::density::ecdf(&samples, 4.0);
 /// assert_eq!(value, 0.5);
 /// ```
 pub fn ecdf(samples: &[f64], x: f64) -> f64 {
@@ -264,10 +264,10 @@ pub fn ecdf(samples: &[f64], x: f64) -> f64 {
 /// extern crate kernel_density;
 ///
 /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-/// let percentile = kernel_density::ecdf::p(&samples, 0.5);
+/// let percentile = kernel_density::density::p(&samples, 0.5);
 /// assert_eq!(percentile, 4.0);
 ///
-/// let percentile = kernel_density::ecdf::p(&samples, 0.05);
+/// let percentile = kernel_density::density::p(&samples, 0.05);
 /// assert_eq!(percentile, 0.0);
 /// ```
 pub fn p(samples: &[f64], proportion: f64) -> f64 {
@@ -312,10 +312,10 @@ pub fn p(samples: &[f64], proportion: f64) -> f64 {
 /// extern crate kernel_density;
 ///
 /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-/// let percentile = kernel_density::ecdf::percentile(&samples, 50.0);
+/// let percentile = kernel_density::density::percentile(&samples, 50.0);
 /// assert_eq!(percentile, 4.0);
 ///
-/// let percentile = kernel_density::ecdf::percentile(&samples, 5.0);
+/// let percentile = kernel_density::density::percentile(&samples, 5.0);
 /// assert_eq!(percentile, 0.0);
 /// ```
 pub fn percentile(samples: &[f64], percentile: f64) -> f64 {
@@ -342,7 +342,7 @@ pub fn percentile(samples: &[f64], percentile: f64) -> f64 {
 /// extern crate kernel_density;
 ///
 /// let samples = vec!(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0);
-/// let rank = kernel_density::ecdf::rank(&samples, 5);
+/// let rank = kernel_density::density::rank(&samples, 5);
 /// assert_eq!(rank, 4.0);
 /// ```
 pub fn rank(samples: &[f64], rank: usize) -> f64 {

@@ -2,7 +2,7 @@
 
 extern crate special_fun;
 
-use Density;
+use density::Density;
 use self::special_fun::FloatSpecial;
 use std::f64::consts;
 
