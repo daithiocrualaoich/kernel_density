@@ -18,7 +18,7 @@ fn parse_float(s: String) -> f64 {
 /// # Examples
 ///
 /// ```bash
-/// cargo run --bin uniform_kde <min> <max> <step> <bandwidth> <file>
+/// cargo run --bin epanechnikov_kde <min> <max> <step> <bandwidth> <file>
 /// ```
 ///
 /// This will print the values of the Epanechnikov KDE for values between min

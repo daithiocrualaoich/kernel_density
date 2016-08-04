@@ -18,7 +18,7 @@ fn parse_float(s: String) -> f64 {
 /// # Examples
 ///
 /// ```bash
-/// cargo run --bin uniform_kde <min> <max> <step> <bandwidth> <file>
+/// cargo run --bin normal_kde <min> <max> <step> <bandwidth> <file>
 /// ```
 ///
 /// This will print the values of the Normal KDE for values between min and

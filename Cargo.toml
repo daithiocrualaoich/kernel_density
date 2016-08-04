@@ -21,6 +21,9 @@ exclude = [
 name = "normal"
 
 [[bin]]
+name = "normal_density"
+
+[[bin]]
 name = "epanechnikov_kde"
 
 [[bin]]
