@@ -1,22 +1,22 @@
 mod common;
 
 extern crate kernel_density;
-extern crate rand;
 extern crate quickcheck;
+extern crate rand;
 
+use common::{check, PositiveF64, SamplesF64};
 use kernel_density::kde;
-use common::{check, SamplesF64, PositiveF64};
 use std::f64;
 
 #[test]
-#[should_panic(expected="assertion failed: length > 0")]
+#[should_panic(expected = "assertion failed: length > 0")]
 fn new_epanechnikov_kde_panics_on_empty_samples_set() {
     let xs: Vec<f64> = vec![];
     kde::epanechnikov(&xs, 1.0);
 }
 
 #[test]
-#[should_panic(expected="assertion failed: bandwidth > 0.0")]
+#[should_panic(expected = "assertion failed: bandwidth > 0.0")]
 fn epanechnikov_kde_panics_on_zero_bandwidth() {
     let xs: Vec<f64> = vec![0.0];
     kde::epanechnikov(&xs, 0.0);
