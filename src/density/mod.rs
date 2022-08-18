@@ -6,7 +6,7 @@ pub trait Density {
 }
 
 mod ecdf;
-pub use self::ecdf::{Ecdf, ecdf, percentile, p, rank};
+pub use self::ecdf::{ecdf, p, percentile, rank, Ecdf};
 
 mod normal;
 

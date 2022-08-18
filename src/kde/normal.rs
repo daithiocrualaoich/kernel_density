@@ -7,9 +7,9 @@ use std::f64::consts::PI;
 fn erf(z: f64) -> f64 {
     assert!(z >= 0.0);
     if z > 9.231948545 {
-        return 1.0
-    } else if z < - 9.231948545 {
-        return - 1.0
+        return 1.0;
+    } else if z < -9.231948545 {
+        return -1.0;
     }
     let a1 = 0.0705230784;
     let a2 = 0.0422820123;
@@ -17,11 +17,18 @@ fn erf(z: f64) -> f64 {
     let a4 = 0.0001520143;
     let a5 = 0.0002765672;
     let a6 = 0.0000430638;
-    let denom = (1.0 + a1 * z + a2 * z.powf(2.0) + a3 * z.powf(3.0) + a4 * z.powf(4.0) + a5 * z.powf(5.0) + a6 * z.powf(6.0)).powf(16.0);
+    let denom = (1.0
+        + a1 * z
+        + a2 * z.powf(2.0)
+        + a3 * z.powf(3.0)
+        + a4 * z.powf(4.0)
+        + a5 * z.powf(5.0)
+        + a6 * z.powf(6.0))
+    .powf(16.0);
     1.0 - 1.0 / denom
 }
 
-fn norm(x: f64) -> f64{
+fn norm(x: f64) -> f64 {
     let z = x / 2f64.sqrt();
     (1.0 + erf(z)) / 2.0
 }
