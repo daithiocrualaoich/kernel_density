@@ -4,21 +4,21 @@ extern crate kernel_density;
 extern crate quickcheck;
 extern crate rand;
 
-use kernel_density::density::{Ecdf, ecdf, percentile, p, rank};
-use common::{check, SamplesF64, Percentile, Proportion};
+use common::{check, Percentile, Proportion, SamplesF64};
+use kernel_density::density::{ecdf, p, percentile, rank, Ecdf};
 
 use quickcheck::TestResult;
 use std::{cmp, usize};
 
 #[test]
-#[should_panic(expected="assertion failed: length > 0")]
+#[should_panic(expected = "assertion failed: length > 0")]
 fn single_use_ecdf_panics_on_empty_samples_set() {
     let xs: Vec<f64> = vec![];
     ecdf(&xs, 0.0);
 }
 
 #[test]
-#[should_panic(expected="assertion failed: length > 0")]
+#[should_panic(expected = "assertion failed: length > 0")]
 fn multiple_use_ecdf_panics_on_empty_samples_set() {
     let xs: Vec<f64> = vec![];
     Ecdf::new(&xs);
@@ -114,10 +114,7 @@ fn multiple_use_ecdf_sample_max_is_one() {
 fn single_use_ecdf_sample_val_is_num_samples_leq_val_div_length() {
     fn prop(xs: SamplesF64) -> bool {
         let &val = xs.vec.first().unwrap();
-        let num_samples = xs.vec
-            .iter()
-            .filter(|&&x| x <= val)
-            .count();
+        let num_samples = xs.vec.iter().filter(|&&x| x <= val).count();
         let expected = num_samples as f64 / xs.vec.len() as f64;
 
         ecdf(&xs.vec, val) == expected
@@ -130,10 +127,7 @@ fn single_use_ecdf_sample_val_is_num_samples_leq_val_div_length() {
 fn multiple_use_ecdf_sample_val_is_num_samples_leq_val_div_length() {
     fn prop(xs: SamplesF64) -> bool {
         let &val = xs.vec.first().unwrap();
-        let num_samples = xs.vec
-            .iter()
-            .filter(|&&x| x <= val)
-            .count();
+        let num_samples = xs.vec.iter().filter(|&&x| x <= val).count();
         let expected = num_samples as f64 / xs.vec.len() as f64;
 
         let ecdf = Ecdf::new(&xs.vec);
@@ -154,10 +148,7 @@ fn single_use_ecdf_non_sample_val_is_num_samples_leq_val_div_length() {
             return TestResult::discard();
         }
 
-        let num_samples = xs.vec
-            .iter()
-            .filter(|&&x| x <= val)
-            .count();
+        let num_samples = xs.vec.iter().filter(|&&x| x <= val).count();
         let expected = num_samples as f64 / length as f64;
 
         let actual = ecdf(&xs.vec, val);
@@ -178,10 +169,7 @@ fn multiple_use_ecdf_non_sample_val_is_num_samples_leq_val_div_length() {
             return TestResult::discard();
         }
 
-        let num_samples = xs.vec
-            .iter()
-            .filter(|&&x| x <= val)
-            .count();
+        let num_samples = xs.vec.iter().filter(|&&x| x <= val).count();
         let expected = num_samples as f64 / length as f64;
 
         let ecdf = Ecdf::new(&xs.vec);
@@ -204,7 +192,7 @@ fn single_and_multiple_use_ecdf_agree() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < percentile && percentile <= 100.0")]
+#[should_panic(expected = "assertion failed: 0.0 < percentile && percentile <= 100.0")]
 fn single_use_percentile_panics_on_zero_percentile() {
     let xs: Vec<f64> = vec![0.0];
 
@@ -212,7 +200,7 @@ fn single_use_percentile_panics_on_zero_percentile() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < percentile && percentile <= 100.0")]
+#[should_panic(expected = "assertion failed: 0.0 < percentile && percentile <= 100.0")]
 fn single_use_percentile_panics_on_greater_than_100_percentile() {
     let xs: Vec<f64> = vec![0.0];
 
@@ -220,7 +208,7 @@ fn single_use_percentile_panics_on_greater_than_100_percentile() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < percentile && percentile <= 100.0")]
+#[should_panic(expected = "assertion failed: 0.0 < percentile && percentile <= 100.0")]
 fn multiple_use_percentile_panics_on_zero_percentile() {
     let xs: Vec<f64> = vec![0.0];
     let ecdf = Ecdf::new(&xs);
@@ -229,7 +217,7 @@ fn multiple_use_percentile_panics_on_zero_percentile() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < percentile && percentile <= 100.0")]
+#[should_panic(expected = "assertion failed: 0.0 < percentile && percentile <= 100.0")]
 fn multiple_use_percentile_panics_on_greater_than_100_percentile() {
     let xs: Vec<f64> = vec![0.0];
     let ecdf = Ecdf::new(&xs);
@@ -377,7 +365,7 @@ fn single_and_multiple_use_percentile_agree() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < proportion && proportion <= 1.0")]
+#[should_panic(expected = "assertion failed: 0.0 < proportion && proportion <= 1.0")]
 fn single_use_p_panics_on_zero_p() {
     let xs: Vec<f64> = vec![0.0];
 
@@ -385,7 +373,7 @@ fn single_use_p_panics_on_zero_p() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < proportion && proportion <= 1.0")]
+#[should_panic(expected = "assertion failed: 0.0 < proportion && proportion <= 1.0")]
 fn single_use_p_panics_on_greater_than_1_p() {
     let xs: Vec<f64> = vec![0.0];
 
@@ -393,7 +381,7 @@ fn single_use_p_panics_on_greater_than_1_p() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < proportion && proportion <= 1.0")]
+#[should_panic(expected = "assertion failed: 0.0 < proportion && proportion <= 1.0")]
 fn multiple_use_p_panics_on_zero_p() {
     let xs: Vec<f64> = vec![0.0];
     let ecdf = Ecdf::new(&xs);
@@ -402,7 +390,7 @@ fn multiple_use_p_panics_on_zero_p() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < proportion && proportion <= 1.0")]
+#[should_panic(expected = "assertion failed: 0.0 < proportion && proportion <= 1.0")]
 fn multiple_use_p_panics_on_greater_than_1_p() {
     let xs: Vec<f64> = vec![0.0];
     let ecdf = Ecdf::new(&xs);
@@ -554,7 +542,7 @@ fn single_and_multiple_use_p_agree() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0 < rank && rank <= length")]
+#[should_panic(expected = "assertion failed: 0 < rank && rank <= length")]
 fn single_use_rank_panics_on_zero_rank() {
     let xs: Vec<f64> = vec![0.0];
 
@@ -562,7 +550,7 @@ fn single_use_rank_panics_on_zero_rank() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0 < rank && rank <= length")]
+#[should_panic(expected = "assertion failed: 0 < rank && rank <= length")]
 fn single_use_rank_panics_on_too_large_rank() {
     let xs: Vec<f64> = vec![0.0];
 
@@ -570,7 +558,7 @@ fn single_use_rank_panics_on_too_large_rank() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0 < rank && rank <= length")]
+#[should_panic(expected = "assertion failed: 0 < rank && rank <= length")]
 fn multiple_use_rank_panics_on_zero_rank() {
     let xs: Vec<f64> = vec![0.0];
     let ecdf = Ecdf::new(&xs);
@@ -579,7 +567,7 @@ fn multiple_use_rank_panics_on_zero_rank() {
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0 < rank && rank <= length")]
+#[should_panic(expected = "assertion failed: 0 < rank && rank <= length")]
 fn multiple_use_rank_panics_on_too_large_rank() {
     let xs: Vec<f64> = vec![0.0];
     let ecdf = Ecdf::new(&xs);
@@ -807,7 +795,12 @@ fn single_use_rank_followed_by_single_use_ecdf_is_geq_original_value() {
         (x as f64 / length as f64) <= ecdf(&xs.vec, actual)
     }
 
-    assert!(prop(SamplesF64 { vec: vec![0.0, 0.0] }, 0));
+    assert!(prop(
+        SamplesF64 {
+            vec: vec![0.0, 0.0]
+        },
+        0
+    ));
     check(prop as fn(SamplesF64, usize) -> bool);
 }
 
@@ -826,7 +819,12 @@ fn single_use_rank_followed_by_multiple_use_ecdf_is_geq_original_value() {
         (x as f64 / length as f64) <= ecdf.value(actual)
     }
 
-    assert!(prop(SamplesF64 { vec: vec![0.0, 0.0] }, 0));
+    assert!(prop(
+        SamplesF64 {
+            vec: vec![0.0, 0.0]
+        },
+        0
+    ));
     check(prop as fn(SamplesF64, usize) -> bool);
 }
 
@@ -844,7 +842,12 @@ fn multiple_use_rank_followed_by_single_use_ecdf_is_geq_original_value() {
         (x as f64 / length as f64) <= ecdf(&xs.vec, actual)
     }
 
-    assert!(prop(SamplesF64 { vec: vec![0.0, 0.0] }, 0));
+    assert!(prop(
+        SamplesF64 {
+            vec: vec![0.0, 0.0]
+        },
+        0
+    ));
     check(prop as fn(SamplesF64, usize) -> bool);
 }
 
@@ -862,7 +865,12 @@ fn multiple_use_rank_followed_by_multiple_use_ecdf_is_geq_original_value() {
         (x as f64 / length as f64) <= ecdf.value(actual)
     }
 
-    assert!(prop(SamplesF64 { vec: vec![0.0, 0.0] }, 0));
+    assert!(prop(
+        SamplesF64 {
+            vec: vec![0.0, 0.0]
+        },
+        0
+    ));
     check(prop as fn(SamplesF64, usize) -> bool);
 }
 

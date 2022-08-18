@@ -4,41 +4,53 @@ extern crate kernel_density;
 extern crate quickcheck;
 extern crate rand;
 
+use common::{check, MoreThanSevenSamplesF64, EPSILON};
 use kernel_density::density::Ecdf;
 use kernel_density::kolmogorov_smirnov::test;
-use common::{check, MoreThanSevenSamplesF64, EPSILON};
 
 use std::cmp;
 
 #[test]
-#[should_panic(expected="assertion failed: xs.len() > 7 && ys.len() > 7")]
+#[should_panic(expected = "assertion failed: xs.len() > 7 && ys.len() > 7")]
 fn test_panics_on_empty_samples_set() {
     let xs: Vec<f64> = vec![];
-    let ys: Vec<f64> = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0];
+    let ys: Vec<f64> = vec![
+        0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+    ];
     test(&xs, &ys, 0.95);
 }
 
 #[test]
-#[should_panic(expected="assertion failed: xs.len() > 7 && ys.len() > 7")]
+#[should_panic(expected = "assertion failed: xs.len() > 7 && ys.len() > 7")]
 fn test_panics_on_empty_other_samples_set() {
-    let xs: Vec<f64> = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0];
+    let xs: Vec<f64> = vec![
+        0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+    ];
     let ys: Vec<f64> = vec![];
     test(&xs, &ys, 0.95);
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < confidence && confidence < 1.0")]
+#[should_panic(expected = "assertion failed: 0.0 < confidence && confidence < 1.0")]
 fn test_panics_on_confidence_leq_zero() {
-    let xs: Vec<f64> = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0];
-    let ys: Vec<f64> = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0];
+    let xs: Vec<f64> = vec![
+        0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+    ];
+    let ys: Vec<f64> = vec![
+        0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+    ];
     test(&xs, &ys, 0.0);
 }
 
 #[test]
-#[should_panic(expected="assertion failed: 0.0 < confidence && confidence < 1.0")]
+#[should_panic(expected = "assertion failed: 0.0 < confidence && confidence < 1.0")]
 fn test_panics_on_confidence_geq_one() {
-    let xs: Vec<f64> = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0];
-    let ys: Vec<f64> = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0];
+    let xs: Vec<f64> = vec![
+        0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+    ];
+    let ys: Vec<f64> = vec![
+        0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+    ];
     test(&xs, &ys, 1.0);
 }
 
