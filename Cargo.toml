@@ -39,7 +39,8 @@ name = "ks_critical_values"
 name = "ks_test"
 
 [dependencies]
-rand = "0.3.12"
+rand = "0.4"
+# rand_distr = "0.4.3"
 
 [dev-dependencies]
-quickcheck = "0.2"
+quickcheck = "0.6"
