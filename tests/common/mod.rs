@@ -68,9 +68,9 @@ impl Arbitrary for SamplesF64 {
         SamplesF64 { vec: vec }
     }
 
-    fn shrink(&self) -> Box<Iterator<Item = SamplesF64>> {
+    fn shrink(&self) -> Box<dyn Iterator<Item = SamplesF64>> {
         let vec: Vec<f64> = self.vec.clone();
-        let shrunk: Box<Iterator<Item = Vec<f64>>> = vec.shrink();
+        let shrunk: Box<dyn Iterator<Item = Vec<f64>>> = vec.shrink();
 
         Box::new(shrunk.filter(|v| v.len() > 0).map(|v| SamplesF64 { vec: v }))
     }
@@ -127,9 +127,9 @@ impl Arbitrary for MoreThanSevenSamplesF64 {
         MoreThanSevenSamplesF64 { vec: vec }
     }
 
-    fn shrink(&self) -> Box<Iterator<Item = MoreThanSevenSamplesF64>> {
+    fn shrink(&self) -> Box<dyn Iterator<Item = MoreThanSevenSamplesF64>> {
         let vec: Vec<f64> = self.vec.clone();
-        let shrunk: Box<Iterator<Item = Vec<f64>>> = vec.shrink();
+        let shrunk: Box<dyn Iterator<Item = Vec<f64>>> = vec.shrink();
 
         Box::new(shrunk.filter(|v| v.len() > 7).map(|v| MoreThanSevenSamplesF64 { vec: v }))
     }
@@ -153,8 +153,8 @@ impl Arbitrary for PositiveF64 {
         PositiveF64 { val: val }
     }
 
-    fn shrink(&self) -> Box<Iterator<Item = PositiveF64>> {
-        let shrunk: Box<Iterator<Item = f64>> = self.val.shrink();
+    fn shrink(&self) -> Box<dyn Iterator<Item = PositiveF64>> {
+        let shrunk: Box<dyn Iterator<Item = f64>> = self.val.shrink();
 
         Box::new(shrunk.filter(|&v| v > 0.0).map(|v| PositiveF64 { val: v }))
     }
@@ -173,8 +173,8 @@ impl Arbitrary for NonPositiveF64 {
         NonPositiveF64 { val: val }
     }
 
-    fn shrink(&self) -> Box<Iterator<Item = NonPositiveF64>> {
-        let shrunk: Box<Iterator<Item = f64>> = self.val.shrink();
+    fn shrink(&self) -> Box<dyn Iterator<Item = NonPositiveF64>> {
+        let shrunk: Box<dyn Iterator<Item = f64>> = self.val.shrink();
 
         Box::new(shrunk.filter(|&v| v <= 0.0).map(|v| NonPositiveF64 { val: v }))
     }
@@ -196,8 +196,8 @@ impl Arbitrary for Percentile {
         Percentile { val: val }
     }
 
-    fn shrink(&self) -> Box<Iterator<Item = Percentile>> {
-        let shrunk: Box<Iterator<Item = f64>> = self.val.shrink();
+    fn shrink(&self) -> Box<dyn Iterator<Item = Percentile>> {
+        let shrunk: Box<dyn Iterator<Item = f64>> = self.val.shrink();
 
         Box::new(shrunk.filter(|&v| 0.0 < v && v <= 100.0).map(|v| Percentile { val: v }))
     }
@@ -218,8 +218,8 @@ impl Arbitrary for Proportion {
         Proportion { val: val }
     }
 
-    fn shrink(&self) -> Box<Iterator<Item = Proportion>> {
-        let shrunk: Box<Iterator<Item = f64>> = self.val.shrink();
+    fn shrink(&self) -> Box<dyn Iterator<Item = Proportion>> {
+        let shrunk: Box<dyn Iterator<Item = f64>> = self.val.shrink();
 
         Box::new(shrunk.filter(|&v| 0.0 < v && v <= 1.0).map(|v| Proportion { val: v }))
     }

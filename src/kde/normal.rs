@@ -29,7 +29,7 @@ fn erf_compute(z: f64) -> f64 {
 
 fn erf(z: f64) -> f64 {
     if z < 0.0 {
-        - erf_compute(- z)
+        -erf_compute(-z)
     } else {
         erf_compute(z)
     }

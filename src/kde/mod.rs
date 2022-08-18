@@ -25,7 +25,7 @@ use density::Density;
 /// let bandwidth = 0.1;
 /// let kde = kernel_density::kde::epanechnikov(&samples, bandwidth);
 /// ```
-pub fn epanechnikov(samples: &[f64], bandwidth: f64) -> Box<Density> {
+pub fn epanechnikov(samples: &[f64], bandwidth: f64) -> Box<dyn Density> {
     assert!(bandwidth > 0.0);
 
     let length = samples.len();
@@ -56,7 +56,7 @@ pub fn epanechnikov(samples: &[f64], bandwidth: f64) -> Box<Density> {
 /// let bandwidth = 0.1;
 /// let kde = kernel_density::kde::normal(&samples, bandwidth);
 /// ```
-pub fn normal(samples: &[f64], bandwidth: f64) -> Box<Density> {
+pub fn normal(samples: &[f64], bandwidth: f64) -> Box<dyn Density> {
     assert!(bandwidth > 0.0);
 
     let length = samples.len();
@@ -87,7 +87,7 @@ pub fn normal(samples: &[f64], bandwidth: f64) -> Box<Density> {
 /// let bandwidth = 0.1;
 /// let kde = kernel_density::kde::uniform(&samples, bandwidth);
 /// ```
-pub fn uniform(samples: &[f64], bandwidth: f64) -> Box<Density> {
+pub fn uniform(samples: &[f64], bandwidth: f64) -> Box<dyn Density> {
     assert!(bandwidth > 0.0);
 
     let length = samples.len();
