@@ -43,7 +43,12 @@ fn main() {
     let mut x_f64: f64 = x_fixed as f64 / 100.0;
 
     while x_f64 < max {
-        println!("{}\t{}\t{}", x_f64, density.density(x_f64), density.cdf(x_f64));
+        println!(
+            "{}\t{}\t{}",
+            x_f64,
+            density.density(x_f64),
+            density.cdf(x_f64)
+        );
 
         x_fixed += 1;
         x_f64 = x_fixed as f64 / 100.0;

@@ -50,7 +50,9 @@ impl Ecdf {
     /// ```
     pub fn value(&self, x: f64) -> f64 {
         let length = self.samples.len();
-        let binary_search_x = self.samples.binary_search_by(|x_1| x_1.partial_cmp(&x).unwrap());
+        let binary_search_x = self
+            .samples
+            .binary_search_by(|x_1| x_1.partial_cmp(&x).unwrap());
 
         let num_samples_leq_x = match binary_search_x {
             Ok(mut index) => {

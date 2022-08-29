@@ -1,6 +1,14 @@
+I don't know if the original author is ever going to respond to my PR, but I basically factored out dependence on `cephes` so it could work with `wasm`. You can use my fork in `Cargo.toml` like the following
+
+``` toml
+[dependencies]
+kernel_density = { git = "https://github.com/quinn-dougherty/kernel_density", version = "0.0.3" }
+```
+
 [![Build Status](https://travis-ci.org/daithiocrualaoich/kernel_density.svg?branch=master)](https://travis-ci.org/daithiocrualaoich/kernel_density)
 [![Crates.io](https://img.shields.io/crates/v/kernel_density.svg)](https://crates.io/crates/kernel_density)
 [![License](https://img.shields.io/crates/l/kernel_density.svg)](https://github.com/daithiocrualaoich/kernel_density/blob/master/LICENSE)
+[![Cargo test CI](https://github.com/quinn-dougherty/kernel_density/actions/workflows/ci.yml/badge.svg)](https://github.com/quinn-dougherty/kernel_density/actions/workflows/ci.yml)
 
 Implementation of Kernel Density Estimation as a Rust library.
 
@@ -10,7 +18,7 @@ The Kernel Density Estimation library is available as a crate, so it is easy to
 incorporate into your programs. Add the dependency to your `Cargo.toml` file.
 
     [dependencies]
-    kernel_density = "0.0.1"
+    kernel_density = "0.0.3"
 
 Information about the latest published crate is available on
 [crates.io](https://crates.io/crates/kernel_density).

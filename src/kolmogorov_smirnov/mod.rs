@@ -55,7 +55,6 @@ pub fn test(xs: &[f64], ys: &[f64], confidence: f64) -> TestResult {
     }
 }
 
-
 /// Calculate the test statistic for the two sample Kolmogorov-Smirnov test.
 ///
 /// The test statistic is the maximum vertical distance between the ECDFs of
@@ -196,10 +195,10 @@ pub fn calculate_critical_value(n1: usize, n2: usize, confidence: f64) -> f64 {
         }
     }
 
-    panic!("No convergence in calculate_critical_value({}, {}, {}).",
-           n1,
-           n2,
-           confidence);
+    panic!(
+        "No convergence in calculate_critical_value({}, {}, {}).",
+        n1, n2, confidence
+    );
 }
 
 /// Calculate the Kolmogorov-Smirnov probability function.
@@ -212,11 +211,7 @@ fn probability_kolmogorov_smirnov(lambda: f64) -> f64 {
     let mut q_ks = 0.0;
 
     for j in 1..200 {
-        let sign = if j % 2 == 1 {
-            1.0
-        } else {
-            -1.0
-        };
+        let sign = if j % 2 == 1 { 1.0 } else { -1.0 };
 
         let j = j as f64;
         let term = sign * 2.0 * (minus_two_lambda_squared * j * j).exp();
@@ -229,6 +224,8 @@ fn probability_kolmogorov_smirnov(lambda: f64) -> f64 {
         }
     }
 
-    panic!("No convergence in probability_kolmogorov_smirnov({}).",
-           lambda);
+    panic!(
+        "No convergence in probability_kolmogorov_smirnov({}).",
+        lambda
+    );
 }

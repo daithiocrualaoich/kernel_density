@@ -4,7 +4,6 @@
 *.dll
 *.exe
 target
-Cargo.lock
 _build
 *.iml
 .idea
@@ -13,3 +12,4 @@ _build
 .DS_Store
 .RHistory
 *.html
+result

@@ -3,8 +3,8 @@ extern crate kernel_density;
 use kernel_density::kde;
 
 use std::env;
-use std::io::{BufReader, BufRead};
 use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::path::Path;
 
 fn parse_float(s: String) -> f64 {

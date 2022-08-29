@@ -1,21 +1,21 @@
 mod common;
 
 extern crate kernel_density;
-extern crate rand;
 extern crate quickcheck;
+extern crate rand;
 
-use kernel_density::density;
 use common::{check, PositiveF64};
+use kernel_density::density;
 use std::f64;
 
 #[test]
-#[should_panic(expected="assertion failed: variance > 0.0")]
+#[should_panic(expected = "assertion failed: variance > 0.0")]
 fn new_normal_density_panics_on_zero_variance() {
     density::normal(0.0, 0.0);
 }
 
 #[test]
-#[should_panic(expected="assertion failed: variance > 0.0")]
+#[should_panic(expected = "assertion failed: variance > 0.0")]
 fn new_normal_density_panics_on_negative_variance() {
     density::normal(0.0, -1.0);
 }
